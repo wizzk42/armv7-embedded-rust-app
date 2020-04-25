@@ -1,12 +1,10 @@
 #![no_std]
 #![no_main]
-#![feature(core_intrinsics)]
 
-use core::intrinsics;
 
 use cortex_m_semihosting::{debug, hio::{self, HStdout}};
 
-use rt::{entry, interrupt};
+use rt::{self, entry};
 use log::{debug, info, warning, error, Log, GlobalLog};
 
 entry!(main);
@@ -23,19 +21,24 @@ fn main() -> ! {
 
     let _ = error!(logger, "ERROR ENTER main entry point");
 
-    debug::exit(debug::EXIT_SUCCESS);
-
-    unsafe {
-        // this triggers the default exception handler to be called
-        // since no other exception handler has been registered
-        intrinsics::abort()
-    }
-}
-
-#[no_mangle]
-pub extern "C" fn hard_fault() -> ! {
     loop {}
 }
+
+
+// exception handlers
+
+rt::exception!(hard_fault, hard_fault_handler);
+rt::exception!(sys_tick, sys_tick_handler, state: u32 = 0);
+
+fn hard_fault_handler(_ef: &rt::ExceptionFrame) -> ! {
+    loop {}
+}
+
+fn sys_tick_handler(state: &mut u32) {
+    *state += 1;
+}
+
+// logger
 
 struct Logger {
     hstdout: HStdout,
@@ -51,7 +54,7 @@ impl Log for Logger {
 
 impl GlobalLog for Logger {
     fn log(&self, address: u8) {
-        interrupt::free(|_| unsafe {
+        rt::free(|_| unsafe {
             static mut HSTDOUT: Option<HStdout> = None;
 
             // lazy initialization
