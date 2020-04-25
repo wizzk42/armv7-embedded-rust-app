@@ -2,7 +2,7 @@
 #![no_main]
 
 
-use cortex_m_semihosting::{debug, hio::{self, HStdout}};
+use cortex_m_semihosting::{debug, hprintln, hio::{self, HStdout}};
 
 use rt::{self, entry};
 use log::{debug, info, warning, error, Log, GlobalLog};
@@ -21,7 +21,10 @@ fn main() -> ! {
 
     let _ = error!(logger, "ERROR ENTER main entry point");
 
-    loop {}
+    loop {
+        hprintln!("Looping around... macro");
+        debug!(logger, "Looping around");
+    }
 }
 
 
@@ -36,6 +39,7 @@ fn hard_fault_handler(_ef: &rt::ExceptionFrame) -> ! {
 
 fn sys_tick_handler(state: &mut u32) {
     *state += 1;
+    hprintln!("sys_tick received: state {}", state);
 }
 
 // logger
