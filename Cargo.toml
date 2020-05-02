@@ -1,14 +1,21 @@
 [package]
 name = "app"
+categories = ["embedded", "no-std"]
+description = "example app for ARM Cortex-M series microcontrollers"
+keywords = ["arm", "cortex-m", "logging"]
 version = "0.1.0"
 authors = ["Matthias  <wizzk42@gmail.com>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+publish = false
 
 [dependencies]
 cortex-m-semihosting = "0.3.5"
 rt = { path = "../rt" }
 log = { path = "../log" }
 
+[dev-dependencies]
+pretty_assertions = "~0.6.1"
+
 [badges]
+travis-ci = { repository = " wizzk42 / armv7-embedded-rust-app", branch = "master" }
+maintenance = { status = "experimental" }
